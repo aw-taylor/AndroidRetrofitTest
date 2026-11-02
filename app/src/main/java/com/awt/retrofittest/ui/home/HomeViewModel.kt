@@ -1,6 +1,5 @@
 package com.awt.retrofittest.ui.home
 
-import android.net.Network
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.awt.retrofittest.RetroApplication
-import com.awt.retrofittest.data.NetworkRetroRepository
 import com.awt.retrofittest.data.RetroRepository
 import com.awt.retrofittest.network.RetroTracks
 import kotlinx.coroutines.launch
@@ -31,13 +29,25 @@ class HomeViewModel(
         private set
 
     init {
-        getTrackData(term = "berq")
+        getTrackData(
+            term = "the+beatles",
+            country = "GB",
+            limit = 18
+        )
     }
 
-    fun getTrackData(term: String) {
+    fun getTrackData(
+        term: String,
+        country: String,
+        limit: Int
+    ) {
         viewModelScope.launch {
             homeUiState = try {
-                HomeUiState.Success(retroRepository.getTracks(term))
+                HomeUiState.Success(retroRepository.getTracks(
+                    term,
+                    country,
+                    limit
+                ))
             } catch(e: IOException) {
                 HomeUiState.Error
             }

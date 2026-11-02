@@ -7,4 +7,6 @@
     <string name="refresh">Refresh</string>
     <string name="search">Search</string>
     <string name="search_term">Search term</string>
+    <string name="search_country">Select country</string>
+    <string name="search_limit">Number of items</string>
 </resources>

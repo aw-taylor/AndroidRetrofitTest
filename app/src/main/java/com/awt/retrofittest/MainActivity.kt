@@ -16,12 +16,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -59,8 +63,14 @@ fun RetrofitApp(
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
-    var searchTerm by rememberSaveable { mutableStateOf("berq") }
+    var searchTerm by rememberSaveable { mutableStateOf("") }
     searchTerm = searchTerm.replace(" ", "+")
+    var selectedCountry by remember { mutableIntStateOf(0) }
+    val countryOptions = listOf("GB", "ES", "FR", "DE", "IT")
+    var searchCountry by rememberSaveable { mutableStateOf("GB") }
+    var selectedLimit by remember { mutableIntStateOf(2) }
+    val limitOptions = listOf(6, 12, 18, 24, 30)
+    var searchLimit by rememberSaveable { mutableIntStateOf(18) }
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
 
     Scaffold(
@@ -68,13 +78,20 @@ fun RetrofitApp(
         topBar = { RetrofitTopAppBar(
             scrollBehavior = scrollBehavior,
             showBottomSheet = { showBottomSheet = true },
-            retryAction = { homeViewModel.getTrackData(searchTerm) }
+            retryAction = { homeViewModel.getTrackData(
+                searchTerm,
+                searchCountry,
+                searchLimit
+            ) }
         ) }
     ) { innerPadding ->
-
         HomeScreen(
             homeUiState = homeViewModel.homeUiState,
-            retryAction = { homeViewModel.getTrackData(searchTerm) },
+            retryAction = { homeViewModel.getTrackData(
+                searchTerm,
+                searchCountry,
+                searchLimit
+            ) },
             modifier = Modifier.padding(innerPadding)
         )
 
@@ -86,16 +103,63 @@ fun RetrofitApp(
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
+                    Text(
+                        stringResource(R.string.search_term),
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
                     OutlinedTextField(
                         value = searchTerm,
                         onValueChange = { searchTerm = it },
-                        label = { Text(stringResource(R.string.search_term)) },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    Text(
+                        stringResource(R.string.search_country),
+                        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
+                    )
+                    SingleChoiceSegmentedButtonRow {
+                        countryOptions.forEachIndexed { index, label ->
+                            SegmentedButton(
+                                shape = SegmentedButtonDefaults.itemShape(
+                                    index = index,
+                                    count = countryOptions.size
+                                ),
+                                onClick = {
+                                    selectedCountry = index
+                                    searchCountry = label
+                                },
+                                selected = index == selectedCountry,
+                                label = { Text(label) }
+                            )
+                        }
+                    }
+                    Text(
+                        stringResource(R.string.search_limit),
+                        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
+                    )
+                    SingleChoiceSegmentedButtonRow {
+                        limitOptions.forEachIndexed { index, label ->
+                            SegmentedButton(
+                                shape = SegmentedButtonDefaults.itemShape(
+                                    index = index,
+                                    count = limitOptions.size
+                                ),
+                                onClick = {
+                                    selectedLimit = index
+                                    searchLimit = label
+                                },
+                                selected = index == selectedLimit,
+                                label = { Text(label.toString()) }
+                            )
+                        }
+                    }
                     Button(onClick = {
                         scope.launch {
                             sheetState.hide()
-                            homeViewModel.getTrackData(searchTerm)
+                            homeViewModel.getTrackData(
+                                searchTerm,
+                                searchCountry,
+                                searchLimit
+                            )
                         }.invokeOnCompletion {
                             if (!sheetState.isVisible) {
                                 showBottomSheet = false
