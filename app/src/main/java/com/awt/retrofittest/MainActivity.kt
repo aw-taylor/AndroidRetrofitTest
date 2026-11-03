@@ -22,6 +22,8 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -54,7 +56,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun RetrofitApp(
     modifier: Modifier = Modifier
@@ -72,6 +74,7 @@ fun RetrofitApp(
     val limitOptions = listOf(6, 12, 18, 24, 30)
     var searchLimit by rememberSaveable { mutableIntStateOf(18) }
     val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -92,6 +95,7 @@ fun RetrofitApp(
                 searchCountry,
                 searchLimit
             ) },
+            windowSizeClass = windowSizeClass,
             modifier = Modifier.padding(innerPadding)
         )
 

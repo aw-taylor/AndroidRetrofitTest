@@ -16,6 +16,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,10 +39,11 @@ import retrofit2.Response
 fun HomeScreen(
     homeUiState: HomeUiState,
     retryAction: () -> Unit,
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier
 ) {
     when (homeUiState) {
-        is HomeUiState.Success -> TrackGrid(homeUiState.tracks, modifier)
+        is HomeUiState.Success -> TrackGrid(homeUiState.tracks, windowSizeClass, modifier)
         is HomeUiState.Loading -> LoadingScreen(modifier = modifier.fillMaxSize())
         else -> ErrorScreen(retryAction, modifier = modifier.fillMaxSize())
     }
@@ -49,11 +52,18 @@ fun HomeScreen(
 @Composable
 fun TrackGrid(
     tracks: Response<RetroTracks>,
+    windowSizeClass: WindowSizeClass,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
+    val gridColumns: Int = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 2
+        WindowWidthSizeClass.Medium -> 3
+        else -> 4
+    }
+
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+        columns = GridCells.Fixed(gridColumns),
         modifier = modifier.padding(horizontal = 2.dp),
         contentPadding = contentPadding
     ) {

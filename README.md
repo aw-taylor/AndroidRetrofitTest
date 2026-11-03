@@ -3,3 +3,5 @@ A demo Android app that displays data from the iTunes Search API, taking user in
 
 - Built using Jetpack Compose
 - Uses Retrofit to consume API data
+- Uses Coil to load images
+- Some support for different display sizes
